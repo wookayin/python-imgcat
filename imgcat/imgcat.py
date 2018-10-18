@@ -87,6 +87,48 @@ def to_content_buf(data):
     elif isinstance(data, io.TextIOWrapper):
         return data.buffer.read()
 
+    elif 'numpy' in sys.modules and isinstance(data, sys.modules['numpy'].ndarray):
+        # numpy ndarray: convert to png
+        im = data
+        if len(im.shape) == 2:
+            mode = 'L'     # 8-bit pixels, grayscale
+            im = im.astype(sys.modules['numpy'].uint8)
+        elif len(im.shape) == 3 and im.shape[2] in (3, 4):
+            mode = None    # RGB/RGBA
+        else:
+            raise ValueError("Expected a 3D ndarray (RGB/RGBA image) or 2D (grayscale image), "
+                             "but given shape: {}".format(im.shape))
+
+        try:
+            from PIL import Image
+        except ImportError as e:
+            raise ImportError(e.msg +
+                              "\nTo draw numpy arrays, we require Pillow. " +
+                              "(pip install Pillow)")       # TODO; reraise
+
+        with io.BytesIO() as buf:
+            Image.fromarray(im, mode=mode).save(buf, format='png')
+            return buf.getvalue()
+
+    elif 'PIL.Image' in sys.modules and isinstance(data, sys.modules['PIL.Image'].Image):
+        # PIL/Pillow images
+        img = data
+
+        with io.BytesIO() as buf:
+            img.save(buf, format='png')
+            return buf.getvalue()
+
+    elif 'matplotlib' in sys.modules and isinstance(data, sys.modules['matplotlib'].figure.Figure):
+        # matplotlib figures
+        fig = data
+        if fig.canvas is None:
+            from matplotlib.backends.backend_agg import FigureCanvasAgg
+            FigureCanvasAgg(fig)
+
+        with io.BytesIO() as buf:
+            fig.savefig(buf)
+            return buf.getvalue()
+
     else:
         raise TypeError("Unsupported type : {}".format(type(data)))
 
