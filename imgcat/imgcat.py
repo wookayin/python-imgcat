@@ -223,6 +223,11 @@ def imgcat(data, filename=None,
 
 def main():
     import argparse
+    try:
+        from imgcat import __version__
+    except ImportError:
+        __version__ = 'N/A'
+
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('input', nargs='*', type=str,
                         help='Path to the images.')
@@ -230,6 +235,8 @@ def main():
                         help='The number of rows (in terminal) for displaying images.')
     parser.add_argument('--width', default=None, type=int,
                         help='The number of columns (in terminal) for displaying images.')
+    parser.add_argument('-v', '--version', action='version',
+                        version='python-imgcat %s' % __version__)
     args = parser.parse_args()
 
     kwargs = dict()
