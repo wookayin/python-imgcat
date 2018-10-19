@@ -1,11 +1,16 @@
-from setuptools import setup, Command
 import sys
 import os
 import re
 
+from setuptools import setup, Command
+
 
 __PATH__ = os.path.abspath(os.path.dirname(__file__))
 
+
+def read_readme():
+    with open('README.md') as f:
+        return f.read()
 
 def read_version():
     # importing the package causes an ImportError :-)
@@ -64,6 +69,7 @@ setup(
     version=read_version(),
     license='MIT',
     description='imgcat as Python API and CLI',
+    long_description=read_readme(),
     url='https://github.com/wookayin/python-imgcat',
     author='Jongwook Choi',
     author_email='wookayin@gmail.com',
