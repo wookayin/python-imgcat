@@ -85,6 +85,7 @@ setup(
     license='MIT',
     description='imgcat as Python API and CLI',
     long_description=read_readme(),
+    long_description_content_type='text/markdown',
     url='https://github.com/wookayin/python-imgcat',
     author='Jongwook Choi',
     author_email='wookayin@gmail.com',
