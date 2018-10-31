@@ -11,7 +11,6 @@ import sys
 import os
 import struct
 import io
-import re
 import subprocess
 
 
@@ -62,6 +61,9 @@ def get_image_shape(buf):
             from PIL import Image
             im = Image.open(b)
             return im.width, im.height
+        except OSError as ex:
+            # PIL.Image.open throws an error -- probably invalid byte input are given
+            sys.stderr.write("Warning: PIL cannot identify image; this may not be an image file" + "\n")
         except ImportError:
             # PIL not available
             sys.stderr.write("Warning: cannot determine the image size; please install Pillow" + "\n")
