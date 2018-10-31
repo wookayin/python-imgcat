@@ -34,7 +34,7 @@ def get_image_shape(buf):
     '''
     Extracts image shape as 2-tuple (width, height) from the content buffer.
 
-    Supports GIF, PNG and other image types (e.g. JPEG) if imagemagick is installed.
+    Supports GIF, PNG and other image types (e.g. JPEG) if PIL/Pillow is installed.
     Returns (None, None) if it can't be identified.
     '''
     def _unpack(fmt, buffer, mode='Image'):
@@ -53,22 +53,21 @@ def get_image_shape(buf):
     elif L >= 16 and buf.startswith(b'\211PNG\r\n\032\n'):
         return _unpack(">LL", buf[8:16], mode='PNG')
     else:
-        # everything else: rely on imagemagick?
+        # everything else: get width/height from PIL
+        # TODO: it might be inefficient to write again the memory-loaded content to buffer...
+        b = io.BytesIO()
+        b.write(buf)
+
         try:
-            p = subprocess.Popen(['identify', '-'],
-                                 stdout=subprocess.PIPE, stdin=subprocess.PIPE)
-            p.stdin.write(buf)
-            identify = p.communicate()[0]
-            p.stdin.close()
-
-            re_m = re.search(r'(\d+)x(\d+)', identify.decode())
-            if re_m:
-                return int(re_m.group(1)), int(re_m.group(2))
-
-        except FileNotFoundError:
-            # imagemagick not available
-            sys.stderr.write("Warning: cannot determine the image size; install imagemagick?\n")
-            pass
+            from PIL import Image
+            im = Image.open(b)
+            return im.width, im.height
+        except ImportError:
+            # PIL not available
+            sys.stderr.write("Warning: cannot determine the image size; please install Pillow" + "\n")
+            sys.stderr.flush()
+        finally:
+            b.close()
 
         return None, None
 
