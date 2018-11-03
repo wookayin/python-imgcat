@@ -125,7 +125,7 @@ def to_content_buf(data):
             img.save(buf, format='png')
             return buf.getvalue()
 
-    elif 'matplotlib' in sys.modules and isinstance(data, sys.modules['matplotlib'].figure.Figure):
+    elif 'matplotlib.figure' in sys.modules and isinstance(data, sys.modules['matplotlib.figure'].Figure):
         # matplotlib figures
         fig = data
         if fig.canvas is None:
