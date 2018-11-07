@@ -30,6 +30,8 @@ install_requires = [
 
 tests_requires = [
     'pytest',
+    'numpy',
+    'matplotlib',
 ]
 
 __version__ = read_version()
