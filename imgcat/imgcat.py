@@ -201,7 +201,11 @@ def imgcat(data, filename=None,
     fp.write(b'1337;File=inline=1')
     fp.write(b';size=%d' % len(buf))
     if filename:
-        fp.write(b';name=%s' % base64.b64encode(filename.encode()))
+        if isinstance(filename, bytes):
+            filename_bytes = filename
+        else:
+            filename_bytes = filename.encode()
+        fp.write(b';name=%s' % base64.b64encode(filename_bytes))
     fp.write(b';height=%d' % height)
     if width:
         fp.write(b';width=%d' % width)
