@@ -178,8 +178,12 @@ def imgcat(data, filename=None,
 
             # automatically limit height to the current tty,
             # otherwise the image will be just erased
-            tty_height, _ = get_tty_size()
-            height = max(1, min(height, tty_height - 9))
+            try:
+                tty_height, _ = get_tty_size()
+                height = max(1, min(height, tty_height - 9))
+            except OSError:
+                # may not be a terminal
+                pass
         else:
             # image height unavailable, fallback?
             height = 10
