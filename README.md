@@ -49,7 +49,7 @@ Python API:
 Notes
 -----
 
-* Currently tmux 2.5+ cannot display big images. Use tmux <= 2.4 or run outside tmux.
+* Currently, [tmux 2.5+ cannot display big images][tmux_gh1502]. Use tmux <= 2.4 or run outside tmux.
 * TODO: General platform/emulator support (introduce multiple backends)
 
 
@@ -57,12 +57,13 @@ Related Projects
 ----------------
 
 * Original implementation: [imgcat][iTerm2_imgcat] from iTerm2  (limited tmux support)
-  * A modified version with better tmux support by [Eric Dobson](https://gitlab.com/gnachman/iterm2/issues/3898#note_14097715) and [@krtx](https://gist.github.com/krtx/533d33d6cc49ecbbb8fab0ae871059ec)
+  * There are modified versions with better tmux support by [Eric Dobson](https://gitlab.com/gnachman/iterm2/issues/3898#note_14097715) and by [@krtx](https://gist.github.com/krtx/533d33d6cc49ecbbb8fab0ae871059ec)
 * Node.js: [term-img](https://github.com/sindresorhus/term-img) (no tmux support)
 * Go: [iterm2-imagetools](https://github.com/olivere/iterm2-imagetools) (no tmux support)
 
 
 [iTerm2_imgcat]: https://github.com/gnachman/iTerm2/blob/master/tests/imgcat
+[tmux_gh1502]: https://github.com/tmux/tmux/issues/1502
 
 
 License
