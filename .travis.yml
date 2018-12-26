@@ -1,0 +1,17 @@
+language: python
+matrix:
+  include:
+    - python: "2.7"
+    - python: "3.4"
+    - python: "3.5"
+    - python: "3.6"
+    - python: "3.7"
+      dist: xenial
+      sudo: required
+
+install:
+
+script:
+  # pytest --verbose -s  (print stdouts, etc.)
+  - PYTEST_ADDOPTS="-s -v" python setup.py pytest
+  - pip install -e .
