@@ -6,6 +6,8 @@ import sys
 
 from imgcat import imgcat
 
+import matplotlib
+matplotlib.use('Agg')
 
 
 
