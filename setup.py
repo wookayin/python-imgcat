@@ -31,6 +31,7 @@ install_requires = [
 tests_requires = [
     'pytest',
     'numpy',
+    'Pillow',
     'matplotlib',
 ]
 
