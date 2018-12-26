@@ -32,7 +32,8 @@ tests_requires = [
     'pytest',
     'numpy',
     'Pillow',
-    'matplotlib',
+    'matplotlib' if sys.version_info >= (3, 5) \
+        else 'matplotlib<3.0'
 ]
 
 __version__ = read_version()
