@@ -3,6 +3,7 @@
 import unittest
 import numpy as np
 import sys
+import io
 
 from imgcat import imgcat
 
@@ -85,15 +86,24 @@ class TestExample(unittest.TestCase):
     # ----------------------------------------------------------------------
     # Arguments, etc.
 
-    def test_args(self):
+    def test_args_filename(self):
         gray = np.ones([32, 32], dtype=np.uint8) * 128
         imgcat(gray, filename='foo.png')
         imgcat(gray, filename='unicode_한글.png')
 
     def test_args_another(self):
+        b = io.BytesIO()
+
         gray = np.ones([32, 32], dtype=np.uint8) * 128
-        imgcat(gray, filename='foo.png', width=10, height=10,
-               preserve_aspect_ratio=False)
+        imgcat(gray, filename='foo.png', width=10, height=12,
+               preserve_aspect_ratio=False, fp=b)
+
+        v = b.getvalue()
+        assert b'size=82;' in v
+        assert b'height=12;' in v
+        assert b'width=10;' in v
+        assert b'name=Zm9vLnBuZw==;' in v   # foo.png
+        assert b'preserveAspectRatio=0' in v
 
 
 if __name__ == '__main__':
