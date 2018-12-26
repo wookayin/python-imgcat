@@ -67,7 +67,7 @@ def get_image_shape(buf):
             from PIL import Image
             im = Image.open(b)
             return im.width, im.height
-        except OSError as ex:
+        except (IOError, OSError) as ex:
             # PIL.Image.open throws an error -- probably invalid byte input are given
             sys.stderr.write("Warning: PIL cannot identify image; this may not be an image file" + "\n")
         except ImportError:
@@ -197,22 +197,22 @@ def imgcat(data, filename=None,
         fp.write(b'\n' * height)
         # move the cursers back
         fp.write(CSI + b'?25l')
-        fp.write(CSI + b"%dF" % height)
+        fp.write(CSI + str(height).encode() + b"F")     # PEP-461
         fp.write(TMUX_WRAP_ST + b'\033')
 
     # now starts the iTerm2 file transfer protocol.
     fp.write(OSC)
     fp.write(b'1337;File=inline=1')
-    fp.write(b';size=%d' % len(buf))
+    fp.write(b';size=' + str(len(buf)).encode())
     if filename:
         if isinstance(filename, bytes):
             filename_bytes = filename
         else:
             filename_bytes = filename.encode()
-        fp.write(b';name=%s' % base64.b64encode(filename_bytes))
-    fp.write(b';height=%d' % height)
+        fp.write(b';name=' + base64.b64encode(filename_bytes))
+    fp.write(b';height=' + str(height).encode())
     if width:
-        fp.write(b';width=%d' % width)
+        fp.write(b';width=' + str(width).encode())
     if not preserve_aspect_ratio:
         fp.write(b';preserveAspectRatio=0')
     fp.write(b':')
@@ -227,7 +227,7 @@ def imgcat(data, filename=None,
         # terminate DCS passthrough mode
         fp.write(TMUX_WRAP_ED)
         # move back the cursor lines down
-        fp.write(CSI + b"%dE" % height)
+        fp.write(CSI + str(height).encode() + b"E")
         fp.write(CSI + b'?25h')
     else:
         fp.write(b'\n')
