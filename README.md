@@ -1,6 +1,10 @@
 `imgcat`
 ========
 
+[![pypi](https://img.shields.io/pypi/v/imgcat.svg?maxAge=86400)](https://pypi.python.org/pypi/imgcat)
+[![Build Status](https://travis-ci.org/wookayin/python-imgcat.svg?branch=master)](https://travis-ci.org/wookayin/python-imgcat)
+[![license](https://img.shields.io/github/license/wookayin/python-imgcat.svg?maxAge=86400)](LICENSE)
+
 The imgcat CLI, written in Python (and Python API, too).
 
 <img src="./screenshot.png" width="640" height="520" />
@@ -69,4 +73,4 @@ Related Projects
 License
 -------
 
-MIT License
+[MIT License](LICENSE)
