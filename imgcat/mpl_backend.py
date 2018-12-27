@@ -1,12 +1,12 @@
 # based on https://github.com/matplotlib/matplotlib/blob/master/lib/matplotlib/backends/backend_template.py
 
+import types
+
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.figure import Figure
 from matplotlib.backend_bases import (
      FigureCanvasBase, FigureManagerBase, GraphicsContextBase, RendererBase)
 from matplotlib.backends.backend_agg import FigureCanvasAgg
-
-import types
 
 from . import imgcat
 assert isinstance(imgcat, types.FunctionType)
@@ -25,9 +25,12 @@ def show(block=None):
         # Do not re-display what is already shown.
         Gcf.destroy(manager.num)
 
-def new_figure_manager(num, *args, FigureClass=Figure, **kwargs):
+
+def new_figure_manager(num, *args, **kwargs):
+    FigureClass = kwargs.pop('FigureClass', Figure)
     fig = FigureClass(*args, **kwargs)
     return new_figure_manager_given_figure(num, fig)
+
 
 def new_figure_manager_given_figure(num, figure):
     canvas = FigureCanvasAgg(figure)

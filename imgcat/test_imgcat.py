@@ -3,12 +3,13 @@
 import unittest
 import numpy as np
 import sys
+import os
 import io
 
 from imgcat import imgcat
 
 import matplotlib
-if not matplotlib.rcParams.get('backend', None):
+if not os.environ.get('DISPLAY', '') or not matplotlib.rcParams.get('backend', None):
     matplotlib.use('Agg')
 
 
