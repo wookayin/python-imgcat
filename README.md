@@ -50,6 +50,23 @@ Python API:
 >>> imgcat(fig)
 ```
 
+Matplotlib Backend: `module://imgcat`
+
+```python
+MPLBACKEND="module://imgcat" python draw_matplotlib.py
+```
+
+```python
+>>> import matplotlib
+>>> matplotlib.use("module://imgcat")
+
+>>> import matplotlib.pyplot as plt
+>>> fig, ax = plt.subplots()
+>>> ax.text(0.5, 0.5, "Hello World!");
+>>> fig.show()
+# an image shall be displayed on your terminal!
+```
+
 Notes
 -----
 

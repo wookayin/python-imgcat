@@ -8,8 +8,8 @@ import io
 from imgcat import imgcat
 
 import matplotlib
-matplotlib.use('Agg')
-
+if not matplotlib.rcParams.get('backend', None):
+    matplotlib.use('Agg')
 
 
 class TestExample(unittest.TestCase):
