@@ -93,7 +93,7 @@ setup(
     url='https://github.com/wookayin/python-imgcat',
     author='Jongwook Choi',
     author_email='wookayin@gmail.com',
-    keywords='imgcat iterm2',
+    keywords='imgcat iterm2 matplotlib',
     classifiers=[
         # https://pypi.python.org/pypi?%3Aaction=list_classifiers
         'Development Status :: 3 - Alpha',

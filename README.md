@@ -7,7 +7,7 @@
 
 The imgcat CLI, written in Python (and Python API, too).
 
-<img src="./screenshot.png" width="640" height="520" />
+<img src="https://github.com/wookayin/python-imgcat/blob/master/screenshot.png" width="640" height="520" />
 
 It works with [iTerm2](https://www.iterm2.com/documentation-images.html), and even inside tmux.
 
