@@ -9,7 +9,7 @@ The imgcat CLI, written in Python (and Python API, too).
 
 <img src="https://raw.githubusercontent.com/wookayin/python-imgcat/master/screenshot.png" width="640" height="520" />
 
-It works with [iTerm2](https://www.iterm2.com/documentation-images.html), and even inside tmux.
+It works with [iTerm2](https://www.iterm2.com/documentation-images.html), and [even inside tmux][iterm_g3898].
 
 
 Installation and Usage
@@ -85,6 +85,7 @@ Related Projects
 
 [iTerm2_imgcat]: https://github.com/gnachman/iTerm2/blob/master/tests/imgcat
 [tmux_gh1502]: https://github.com/tmux/tmux/issues/1502
+[iterm_g3898]: https://gitlab.com/gnachman/iterm2/issues/3898
 
 
 License
