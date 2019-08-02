@@ -67,6 +67,13 @@ MPLBACKEND="module://imgcat" python draw_matplotlib.py
 # an image shall be displayed on your terminal!
 ```
 
+IPython magic (works both in terminal and notebook)
+
+```
+%load_ext imgcat
+%imgcat skimage.data.chelsea()
+```
+
 Notes
 -----
 

@@ -18,3 +18,9 @@ try:
 except ImportError:
     # matplotlib is not available, do nothing
     pass
+
+
+# IPython magic support: %load_ext imgcat
+def load_ipython_extension(ipython):
+    from .ipython_magic import ImgcatMagics
+    ipython.register_magics(ImgcatMagics)
