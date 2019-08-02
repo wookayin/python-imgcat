@@ -29,12 +29,15 @@ install_requires = [
 ]
 
 tests_requires = [
-    'pytest',
+    'pytest<5.0',
     'numpy',
-    'Pillow',
-    'matplotlib' if sys.version_info >= (3, 5) \
-        else 'matplotlib<3.0'
 ]
+if sys.version_info >= (3, 6):
+    tests_requires += ['matplotlib>=3.1', 'Pillow']
+elif sys.version_info >= (3, 5):
+    tests_requires += ['matplotlib~=3.0.3', 'Pillow']
+else:  # <= Python 3.4
+    tests_requires += ['matplotlib<3.0', 'Pillow<6.0']
 
 __version__ = read_version()
 
@@ -105,7 +108,7 @@ setup(
     packages=['imgcat'],
     install_requires=install_requires,
     extras_require={'test': tests_requires},
-    setup_requires=['pytest-runner'],
+    setup_requires=['pytest-runner<5.0'],
     tests_require=tests_requires,
     entry_points={
         'console_scripts': ['imgcat=imgcat:main'],

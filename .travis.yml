@@ -12,6 +12,7 @@ matrix:
 install:
 
 script:
+  - pip install -U setuptools pip
   # pytest --verbose -s  (print stdouts, etc.)
   - PYTEST_ADDOPTS="-s -v" python setup.py pytest
   - pip install -e .
