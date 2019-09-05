@@ -264,9 +264,6 @@ def main():
             stdin = sys.stdin if IS_PY_2 else sys.stdin.buffer
             imgcat(to_content_buf(stdin), **kwargs)
             return 0
-        else:
-            sys.stderr.write("error: when reading from stdin, arg should not be given\n")
-            return 1
 
     # imgcat from arguments
     for fname in args.input:
