@@ -105,17 +105,21 @@ def to_content_buf(data):
         else:
             raise ValueError("Expected a 3D ndarray (RGB/RGBA image) or 2D (grayscale image), "
                              "but given shape: {}".format(im.shape))
+        return _get_bytes_from_numpy(im, mode)
 
-        try:
-            from PIL import Image
-        except ImportError as e:
-            raise ImportError(e.msg +
-                              "\nTo draw numpy arrays, we require Pillow. " +
-                              "(pip install Pillow)")       # TODO; reraise
-
-        with io.BytesIO() as buf:
-            Image.fromarray(im, mode=mode).save(buf, format='png')
-            return buf.getvalue()
+    elif 'torch' in sys.modules and isinstance(data, sys.modules['torch'].Tensor):
+        # numpy ndarray: convert to png
+        im = data
+        if im.shape[0] == 1:
+            mode = 'L'     # 8-bit pixels, grayscale
+            im = im.mul(255).byte().squeeze().numpy()
+        elif im.shape[0] == 3:
+            mode = None    # RGB/RGBA
+            im = im.mul(255).byte().permute(1, 2, 0).numpy()
+        else:
+            raise ValueError("Expected a 3D ndarray (RGB/RGBA image) or 2D (grayscale image), "
+                             "but given shape: {}".format(im.shape))
+        return _get_bytes_from_numpy(im, mode)
 
     elif 'PIL.Image' in sys.modules and isinstance(data, sys.modules['PIL.Image'].Image):
         # PIL/Pillow images
@@ -286,6 +290,19 @@ def main():
         parser.print_help()
 
     return 0
+
+
+def _get_bytes_from_numpy(im, mode):
+    try:
+        from PIL import Image
+    except ImportError as e:
+        raise ImportError(e.msg +
+                          "\nTo draw numpy arrays, we require Pillow. " +
+                          "(pip install Pillow)")       # TODO; reraise
+
+    with io.BytesIO() as buf:
+        Image.fromarray(im, mode=mode).save(buf, format='png')
+        return buf.getvalue()
 
 
 if __name__ == '__main__':
