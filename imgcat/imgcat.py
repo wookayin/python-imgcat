@@ -102,6 +102,8 @@ def to_content_buf(data):
             im = im.astype(sys.modules['numpy'].uint8)
         elif len(im.shape) == 3 and im.shape[2] in (3, 4):
             mode = None    # RGB/RGBA
+        elif len(im.shape) == 1:
+            return im.tostring()
         else:
             raise ValueError("Expected a 3D ndarray (RGB/RGBA image) or 2D (grayscale image), "
                              "but given shape: {}".format(im.shape))
