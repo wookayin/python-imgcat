@@ -2,6 +2,7 @@
 
 import unittest
 import numpy as np
+import torch
 import sys
 import os
 import io
@@ -39,6 +40,18 @@ class TestExample(unittest.TestCase):
         # uint8, color image
         a = np.ones([32, 32, 3], dtype=np.uint8) * 0
         a[:, :, 0] = 255    # (255, 0, 0): red
+        imgcat(a)
+
+    def test_torch(self):
+        # uint8, grayscale
+        a = torch.ones([1, 32, 32], dtype=torch.uint8)
+        imgcat(a)
+
+        a = torch.ones([1, 32, 32], dtype=torch.float32)
+        imgcat(a)
+
+        # uint8, color image
+        a = torch.ones([3, 32, 32], dtype=torch.uint8) * 0
         imgcat(a)
 
     def test_matplotlib(self):
