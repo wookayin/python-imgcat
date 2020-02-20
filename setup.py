@@ -31,7 +31,7 @@ install_requires = [
 tests_requires = [
     'pytest<5.0',
     'numpy',
-    'torch',
+    'torchvision',
 ]
 if sys.version_info >= (3, 6):
     tests_requires += ['matplotlib>=3.1', 'Pillow']
