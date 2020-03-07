@@ -105,6 +105,7 @@ def to_content_buf(data):
         else:
             raise ValueError("Expected a 3D ndarray (RGB/RGBA image) or 2D (grayscale image), "
                              "but given shape: {}".format(im.shape))
+
         try:
             from PIL import Image
         except ImportError as e:
