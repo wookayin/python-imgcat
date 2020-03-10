@@ -102,6 +102,8 @@ def to_content_buf(data):
             im = im.astype(sys.modules['numpy'].uint8)
         elif len(im.shape) == 3 and im.shape[2] in (3, 4):
             mode = None    # RGB/RGBA
+            if im.dtype.kind == 'f':
+                im = (im * 255).astype('uint8')
         else:
             raise ValueError("Expected a 3D ndarray (RGB/RGBA image) or 2D (grayscale image), "
                              "but given shape: {}".format(im.shape))
@@ -114,6 +116,7 @@ def to_content_buf(data):
                               "(pip install Pillow)")       # TODO; reraise
 
         with io.BytesIO() as buf:
+            # mode: https://pillow.readthedocs.io/en/4.2.x/handbook/concepts.html#concept-modes
             Image.fromarray(im, mode=mode).save(buf, format='png')
             return buf.getvalue()
 

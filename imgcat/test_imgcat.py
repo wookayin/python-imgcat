@@ -41,6 +41,15 @@ class TestExample(unittest.TestCase):
         a[:, :, 0] = 255    # (255, 0, 0): red
         imgcat(a)
 
+        # np.float32 [0..1] (#7f7f7f)
+        a = np.ones([32, 32, 3], dtype=np.float32) * 0.5
+        imgcat(a)
+
+        # np.float64 [0..1] (#37b24d)
+        a = np.ones([32, 32, 3], dtype=np.float64) * 0.5
+        a[..., 0], a[..., 1], a[...,2] = 0x37 / 255., 0xb2 / 255., 0x4d / 255.
+        imgcat(a)
+
     @unittest.skipIf(sys.version_info < (3, 5), "Only in Python 3.5+")
     def test_torch(self):
         import torch
