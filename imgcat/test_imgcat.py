@@ -2,7 +2,6 @@
 
 import unittest
 import numpy as np
-import torch
 import sys
 import os
 import io
@@ -44,6 +43,8 @@ class TestExample(unittest.TestCase):
 
     @unittest.skipIf(sys.version_info < (3, 5), "Only in Python 3.5+")
     def test_torch(self):
+        import torch
+
         # uint8, grayscale
         a = torch.ones([1, 32, 32], dtype=torch.uint8)
         imgcat(a)
