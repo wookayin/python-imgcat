@@ -34,6 +34,7 @@ tests_requires = [
 ]
 if sys.version_info >= (3, 5):
     tests_requires += ['torch', 'torchvision']
+    tests_requires += ['tensorflow>=2.0']
 
 if sys.version_info >= (3, 6):
     tests_requires += ['matplotlib>=3.1', 'Pillow']

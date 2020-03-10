@@ -134,6 +134,11 @@ def to_content_buf(data):
             transforms.ToPILImage()(im).save(buf, format='png')
             return buf.getvalue()
 
+    elif ('tensorflow.python.framework.ops' in sys.modules and
+          isinstance(data, sys.modules['tensorflow.python.framework.ops'].EagerTensor)):
+        im = data
+        return to_content_buf(im.numpy())
+
     elif 'PIL.Image' in sys.modules and isinstance(data, sys.modules['PIL.Image'].Image):
         # PIL/Pillow images
         img = data

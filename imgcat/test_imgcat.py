@@ -47,7 +47,7 @@ class TestExample(unittest.TestCase):
 
         # np.float64 [0..1] (#37b24d)
         a = np.ones([32, 32, 3], dtype=np.float64) * 0.5
-        a[..., 0], a[..., 1], a[...,2] = 0x37 / 255., 0xb2 / 255., 0x4d / 255.
+        a[..., 0], a[..., 1], a[..., 2] = 0x37 / 255., 0xb2 / 255., 0x4d / 255.
         imgcat(a)
 
     @unittest.skipIf(sys.version_info < (3, 5), "Only in Python 3.5+")
@@ -63,6 +63,22 @@ class TestExample(unittest.TestCase):
 
         # uint8, color image
         a = torch.ones([3, 32, 32], dtype=torch.uint8) * 0
+        imgcat(a)
+
+    @unittest.skipIf(sys.version_info < (3, 5), "Only in Python 3.5+")
+    def test_tensorflow(self):
+        import tensorflow.compat.v2 as tf
+        tf.enable_v2_behavior()
+        assert tf.executing_eagerly(), "Eager execution should be enabled."
+
+        # #37b24d
+        a = tf.constant([0x37, 0xb2, 0x4d], dtype=tf.uint8)
+        a = tf.tile(a[None, None, :], [32, 32, 1])  # [32, 32, 3]
+        imgcat(a)
+
+        # float32 tensors
+        a = tf.fill([32, 32, 3], 0.5)
+        a = tf.cast(a, dtype=tf.float32)
         imgcat(a)
 
     def test_matplotlib(self):
