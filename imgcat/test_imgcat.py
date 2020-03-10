@@ -42,6 +42,7 @@ class TestExample(unittest.TestCase):
         a[:, :, 0] = 255    # (255, 0, 0): red
         imgcat(a)
 
+    @unittest.skipIf(sys.version_info < (3, 5), "Only in Python 3.5+")
     def test_torch(self):
         # uint8, grayscale
         a = torch.ones([1, 32, 32], dtype=torch.uint8)
