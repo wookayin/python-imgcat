@@ -32,12 +32,19 @@ tests_requires = [
     'pytest<5.0',
     'numpy',
 ]
+if sys.version_info >= (3, 5):
+    tests_requires += ['torch', 'torchvision']
+
 if sys.version_info >= (3, 6):
     tests_requires += ['matplotlib>=3.1', 'Pillow']
 elif sys.version_info >= (3, 5):
     tests_requires += ['matplotlib~=3.0.3', 'Pillow']
 else:  # <= Python 3.4
     tests_requires += ['matplotlib<3.0', 'Pillow<6.0']
+
+# pytorch: python 2.7 require future
+if sys.version_info < (3, 0):
+    tests_requires += ['future']
 
 __version__ = read_version()
 

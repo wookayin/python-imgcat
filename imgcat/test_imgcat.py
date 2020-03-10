@@ -41,6 +41,21 @@ class TestExample(unittest.TestCase):
         a[:, :, 0] = 255    # (255, 0, 0): red
         imgcat(a)
 
+    @unittest.skipIf(sys.version_info < (3, 5), "Only in Python 3.5+")
+    def test_torch(self):
+        import torch
+
+        # uint8, grayscale
+        a = torch.ones([1, 32, 32], dtype=torch.uint8)
+        imgcat(a)
+
+        a = torch.ones([1, 32, 32], dtype=torch.float32)
+        imgcat(a)
+
+        # uint8, color image
+        a = torch.ones([3, 32, 32], dtype=torch.uint8) * 0
+        imgcat(a)
+
     def test_matplotlib(self):
         # plt
         import matplotlib.pyplot as plt

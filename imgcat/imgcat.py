@@ -117,6 +117,20 @@ def to_content_buf(data):
             Image.fromarray(im, mode=mode).save(buf, format='png')
             return buf.getvalue()
 
+    elif 'torch' in sys.modules and isinstance(data, sys.modules['torch'].Tensor):
+        # pytorch tensor: convert to png
+        im = data
+        try:
+            from torchvision import transforms
+        except ImportError as e:
+            raise ImportError(e.msg +
+                              "\nTo draw torch tensor, we require torchvision. " +
+                              "(pip install torchvision)")
+
+        with io.BytesIO() as buf:
+            transforms.ToPILImage()(im).save(buf, format='png')
+            return buf.getvalue()
+
     elif 'PIL.Image' in sys.modules and isinstance(data, sys.modules['PIL.Image'].Image):
         # PIL/Pillow images
         img = data
