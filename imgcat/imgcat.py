@@ -80,6 +80,20 @@ def get_image_shape(buf):
         return None, None
 
 
+def _isinstance(obj, module, clsname):
+    """A helper that works like isinstance(obj, module:clsname), but even when
+    the module hasn't been imported or the type is not importable."""
+
+    if module not in sys.modules:
+        return False
+
+    try:
+        clstype = getattr(sys.modules[module], clsname)
+        return isinstance(obj, clstype)
+    except AttributeError:
+        return False
+
+
 def to_content_buf(data):
     # TODO: handle 'stream-like' data efficiently, rather than storing into RAM
 
@@ -94,7 +108,7 @@ def to_content_buf(data):
     elif isinstance(data, io.TextIOWrapper):
         return data.buffer.read()
 
-    elif 'numpy' in sys.modules and isinstance(data, sys.modules['numpy'].ndarray):
+    elif _isinstance(data, 'numpy', 'ndarray'):
         # numpy ndarray: convert to png
         im = data
         if len(im.shape) == 2:
@@ -120,7 +134,7 @@ def to_content_buf(data):
             Image.fromarray(im, mode=mode).save(buf, format='png')
             return buf.getvalue()
 
-    elif 'torch' in sys.modules and isinstance(data, sys.modules['torch'].Tensor):
+    elif _isinstance(data, 'torch', 'Tensor'):
         # pytorch tensor: convert to png
         im = data
         try:
@@ -134,12 +148,11 @@ def to_content_buf(data):
             transforms.ToPILImage()(im).save(buf, format='png')
             return buf.getvalue()
 
-    elif ('tensorflow.python.framework.ops' in sys.modules and
-          isinstance(data, sys.modules['tensorflow.python.framework.ops'].EagerTensor)):
+    elif _isinstance(data, 'tensorflow.python.framework.ops', 'EagerTensor'):
         im = data
         return to_content_buf(im.numpy())
 
-    elif 'PIL.Image' in sys.modules and isinstance(data, sys.modules['PIL.Image'].Image):
+    elif _isinstance(data, 'PIL.Image', 'Image'):
         # PIL/Pillow images
         img = data
 
@@ -147,7 +160,7 @@ def to_content_buf(data):
             img.save(buf, format='png')
             return buf.getvalue()
 
-    elif 'matplotlib.figure' in sys.modules and isinstance(data, sys.modules['matplotlib.figure'].Figure):
+    elif _isinstance(data, 'matplotlib.figure', 'Figure'):
         # matplotlib figures
         fig = data
         if fig.canvas is None:
