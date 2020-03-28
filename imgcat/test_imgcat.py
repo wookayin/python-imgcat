@@ -6,22 +6,44 @@ import sys
 import os
 import io
 import hashlib
+import functools
+import contextlib
 
-from imgcat import imgcat
+import pytest
 
 import matplotlib
-import contextlib
 if not os.environ.get('DISPLAY', '') or not matplotlib.rcParams.get('backend', None):
     matplotlib.use('Agg')
+
+from imgcat import imgcat
 
 
 IS_PY_2 = (sys.version_info[0] <= 2)
 IS_PY_3 = (not IS_PY_2)
 
 
-class TestImgcat(unittest.TestCase):
-    '''Basic unit test.
-    TODO: tmux handling, CLI interface, etc.'''
+@pytest.fixture
+def mock_env(monkeypatch, env_profile):
+    """Mock environment variables (especially, TMUX)"""
+    if env_profile == 'plain':
+        monkeypatch.delenv("TMUX", raising=False)
+    elif env_profile == 'tmux':
+        monkeypatch.setenv("TMUX", "mock-tmux-session")
+    else:
+        raise ValueError("Unknown profile: " + str(env_profile))
+
+
+def parametrize_env(callable, env_profiles=['plain', 'tmux']):
+    @pytest.mark.usefixtures('mock_env')
+    @pytest.mark.parametrize('env_profile', env_profiles)
+    @functools.wraps(callable)
+    def _wrapped(*args, **kwargs):
+        return callable(*args, **kwargs)
+    return _wrapped
+
+
+class TestImgcat(object):
+    '''Basic unit test. Supports TMUX and non-TMUX environment mocking.'''
 
     def setUp(self):
         sys.stdout.write('\n')
@@ -64,13 +86,37 @@ class TestImgcat(unittest.TestCase):
 
     @contextlib.contextmanager
     def capture_and_validate(self, **kwargs):
-        with self._redirect_stdout() as f:
+        with self._redirect_stdout(reprint=True) as f:
             yield
-        self._validate_iterm2(f.getvalue(), **kwargs)
+
+        captured_bytes = f.getvalue()
+
+        is_tmux = os.getenv('TMUX')
+        if is_tmux:
+            captured_bytes = self.tmux_unwrap_passthrough(captured_bytes)
+        self._validate_iterm2(captured_bytes, **kwargs)
+
+    @staticmethod
+    def tmux_unwrap_passthrough(b):
+        '''Strip out all tmux pass-through sequence and other cursor-movement
+        control sequences that come either in the beginning or in the end.'''
+        assert isinstance(b, bytes)
+        #assert b.startswith(b'\033Ptmux;')
+        #assert b.endswith(b'\033\\')
+        try:
+            st = b.index(b'\033Ptmux;')
+            ed = b.rindex(b'\033\\')
+        except ValueError:
+            assert '\033Ptmux;' in b, "Does not contain \\033Ptmux; ..."
+
+        b = b[st + 7 : ed]
+        b = b.replace(b'\033\033', b'\033')
+        return b
 
     # ----------------------------------------------------------------------
     # Basic functionality tests
 
+    @parametrize_env
     def test_numpy(self):
         # TODO: The test fails if tmux is enabled
 
@@ -97,6 +143,7 @@ class TestImgcat(unittest.TestCase):
             imgcat(a)
 
     @unittest.skipIf(sys.version_info < (3, 5), "Only in Python 3.5+")
+    @parametrize_env
     def test_torch(self):
         import torch
 
@@ -115,6 +162,7 @@ class TestImgcat(unittest.TestCase):
             imgcat(a)
 
     @unittest.skipIf(sys.version_info < (3, 5), "Only in Python 3.5+")
+    @parametrize_env
     def test_tensorflow(self):
         import tensorflow.compat.v2 as tf
         tf.enable_v2_behavior()
@@ -132,6 +180,7 @@ class TestImgcat(unittest.TestCase):
             a = tf.cast(a, dtype=tf.float32)
             imgcat(a)
 
+    @parametrize_env
     def test_matplotlib(self):
         # plt
         with self.capture_and_validate():
@@ -147,12 +196,14 @@ class TestImgcat(unittest.TestCase):
             fig = matplotlib.figure.Figure(figsize=(2, 2))
             imgcat(fig)
 
+    @parametrize_env
     def test_pil(self):
         from PIL import Image
         a = np.ones([32, 32], dtype=np.uint8) * 255
         im = Image.fromarray(a)
         imgcat(im)
 
+    @parametrize_env
     def test_bytes(self):
         '''Test imgcat from byte-represented image.
         TODO: validate height, filesize from the imgcat output sequences.'''
@@ -176,6 +227,7 @@ class TestImgcat(unittest.TestCase):
             gif = base64.b64decode(b'R0lGODlhAQABAIABAP///wAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==')
             imgcat(gif)
 
+    @parametrize_env
     def test_invalid_data(self):
         # invalid bytes. TODO: capture stderr
         with self.capture_and_validate():
@@ -185,11 +237,13 @@ class TestImgcat(unittest.TestCase):
     # ----------------------------------------------------------------------
     # Arguments, etc.
 
+    @parametrize_env
     def test_args_filename(self):
         gray = np.ones([32, 32], dtype=np.uint8) * 128
         imgcat(gray, filename='foo.png')
         imgcat(gray, filename='unicode_한글.png')
 
+    @parametrize_env
     def test_args_another(self):
         b = io.BytesIO()
 
