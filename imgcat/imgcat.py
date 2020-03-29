@@ -217,10 +217,16 @@ def imgcat(data: Any, filename=None,
             # image height unavailable, fallback?
             height = 10
 
-    from . import iterm2
-    iterm2._write_image(buf, fp,
-                        filename=filename, width=width, height=height,
-                        preserve_aspect_ratio=preserve_aspect_ratio)
+    # Determine backend from env variables
+    if os.getenv('TERM', '').endswith('-kitty'):
+        from . import kitty
+        # TODO handle other parameters
+        kitty._write_image(buf, fp, height=height)
+    else:
+        from . import iterm2
+        iterm2._write_image(buf, fp,
+                            filename=filename, width=width, height=height,
+                            preserve_aspect_ratio=preserve_aspect_ratio)
 
 
 def main():
