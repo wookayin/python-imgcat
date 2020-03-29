@@ -61,3 +61,9 @@ def _write_image(buf, fp,
 
     # flush is needed so that the cursor control sequence can take effect
     fp.flush()
+
+
+__all__ = (
+    'clear',
+    '_write_image',
+)
