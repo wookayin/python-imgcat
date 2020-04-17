@@ -13,6 +13,11 @@ CSI = b'\033['
 ST  = b'\a'      # \a = ^G (bell)
 
 
+def clear():
+    """Do nothing for iTerm2."""
+    pass
+
+
 def _write_image(buf, fp,
                  filename, width, height, preserve_aspect_ratio):
     # need to detect tmux
