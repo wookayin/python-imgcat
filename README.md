@@ -94,7 +94,24 @@ Related Projects
 [tmux_gh1502]: https://github.com/tmux/tmux/issues/1502
 [iterm_g3898]: https://gitlab.com/gnachman/iterm2/issues/3898
 
+Some benchmarks:
+```
+❯ hyperfine --warmup 5 "imgcat '/Users/evar/Base/_Art/ddg/her-heart/hd/OC I2.jpg' /Users/evar/Base/_Art/ddg/Me/dream_iegwzdmcfxy.jpg /Users/evar/Base/_Art/ddg/Me/dream_1j3y57rjc9a.jpg" "$GOBIN/imgcat '/Users/evar/Base/_Art/ddg/her-heart/hd/OC I2.jpg' /Users/evar/Base/_Art/ddg/Me/dream_iegwzdmcfxy.jpg /Users/evar/Base/_Art/ddg/Me/dream_1j3y57rjc9a.jp"
 
+Benchmark #1: imgcat '/Users/evar/Base/_Art/ddg/her-heart/hd/OC I2.jpg' /Users/evar/Base/_Art/ddg/Me/dream_iegwzdmcfxy.jpg /Users/evar/Base/_Art/ddg/Me/dream_1j3y57rjc9a.jpg
+  Time (mean ± σ):     575.1 ms ± 100.3 ms    [User: 451.4 ms, System: 121.2 ms]
+  Range (min … max):   496.2 ms … 829.9 ms    10 runs
+
+Benchmark #2: /Users/evar/go/bin/imgcat '/Users/evar/Base/_Art/ddg/her-heart/hd/OC I2.jpg' /Users/evar/Base/_Art/ddg/Me/dream_iegwzdmcfxy.jpg /Users/evar/Base/_Art/ddg/Me/dream_1j3y57rjc9a.jp
+  Time (mean ± σ):      11.9 ms ±   4.6 ms    [User: 6.1 ms, System: 5.0 ms]
+  Range (min … max):     7.5 ms …  31.7 ms    99 runs
+
+  Warning: Statistical outliers were detected. Consider re-running this benchmark on a quiet PC without any interferences from other programs. It might help to use the '--warmup' or '--prepare' options.
+
+Summary
+  '/Users/evar/go/bin/imgcat '/Users/evar/Base/_Art/ddg/her-heart/hd/OC I2.jpg' /Users/evar/Base/_Art/ddg/Me/dream_iegwzdmcfxy.jpg /Users/evar/Base/_Art/ddg/Me/dream_1j3y57rjc9a.jp' ran
+   48.42 ± 20.39 times faster than 'imgcat '/Users/evar/Base/_Art/ddg/her-heart/hd/OC I2.jpg' /Users/evar/Base/_Art/ddg/Me/dream_iegwzdmcfxy.jpg /Users/evar/Base/_Art/ddg/Me/dream_1j3y57rjc9a.jpg'
+```
 License
 -------
 
