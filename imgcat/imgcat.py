@@ -126,18 +126,8 @@ def to_content_buf(data):
             return buf.getvalue()
 
     elif _isinstance(data, 'torch', 'Tensor'):
-        # pytorch tensor: convert to png
         im = data
-        try:
-            from torchvision import transforms
-        except ImportError as e:
-            raise ImportError(e.msg +
-                              "\nTo draw torch tensor, we require torchvision. " +
-                              "(pip install torchvision)")
-
-        with io.BytesIO() as buf:
-            transforms.ToPILImage()(im).save(buf, format='png')
-            return buf.getvalue()
+        return to_content_buf(im.numpy())
 
     elif _isinstance(data, 'tensorflow.python.framework.ops', 'EagerTensor'):
         im = data

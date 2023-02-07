@@ -33,7 +33,7 @@ tests_requires = [
     'numpy',
 ]
 if sys.version_info >= (3, 5):
-    tests_requires += ['torch', 'torchvision']
+    tests_requires += ['torch']
     tests_requires += ['tensorflow>=2.0']
 
 if sys.version_info >= (3, 6):
