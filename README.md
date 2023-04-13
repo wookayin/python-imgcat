@@ -9,7 +9,7 @@ The imgcat CLI, written in Python (and Python API, too).
 
 <img src="https://raw.githubusercontent.com/wookayin/python-imgcat/master/screenshot.png" width="640" height="520" />
 
-It works with [iTerm2](https://www.iterm2.com/documentation-images.html), and [even inside tmux][iterm_g3898].
+It works with [iTerm2](https://www.iterm2.com/documentation-images.html), and [even inside tmux][iterm_g3898] (for tmux, see [Notes](#notes) below).
 
 
 Installation and Usage
@@ -77,7 +77,8 @@ IPython magic (works both in terminal and notebook)
 Notes
 -----
 
-* Currently, [tmux 2.5+ cannot display big images][tmux_gh1502]. Use tmux <= 2.4 or run outside tmux.
+* [tmux 2.5+ cannot display big images][tmux_gh1502]. Use tmux <= 2.4 or run outside tmux.
+* In [tmux 3.3a or higher][tmux_33a], it is required to have `set-option -g allow-passthrough on` in `~/.tmux.conf`.
 * TODO: General platform/emulator support (introduce multiple backends)
 
 
@@ -92,6 +93,7 @@ Related Projects
 
 [iTerm2_imgcat]: https://github.com/gnachman/iTerm2/blob/master/tests/imgcat
 [tmux_gh1502]: https://github.com/tmux/tmux/issues/1502
+[tmux_33a]: https://github.com/tmux/tmux/blob/3.3a/CHANGES#L30
 [iterm_g3898]: https://gitlab.com/gnachman/iterm2/issues/3898
 
 
