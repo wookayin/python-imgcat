@@ -5,6 +5,7 @@ import numpy as np
 import sys
 import os
 import io
+import re
 import hashlib
 import functools
 import contextlib
@@ -23,19 +24,30 @@ IS_PY_3 = (not IS_PY_2)
 
 
 @pytest.fixture
-def mock_env(monkeypatch, env_profile):
+def mock_env(monkeypatch, term_profile, tmux_profile):
     """Mock environment variables (especially, TMUX)"""
-    if env_profile == 'plain':
+    if tmux_profile == 'plain':
         monkeypatch.delenv("TMUX", raising=False)
-    elif env_profile == 'tmux':
+    elif tmux_profile == 'tmux':
         monkeypatch.setenv("TMUX", "mock-tmux-session")
     else:
-        raise ValueError("Unknown profile: " + str(env_profile))
+        raise ValueError("Unknown tmux_profile: " + str(tmux_profile))
+
+    if term_profile == 'iterm2':
+        pass  # default
+    elif term_profile == 'kitty':
+        monkeypatch.setenv("TERM", 'xterm-kitty')
+    else:
+        raise ValueError("Unknown term_profile: " + str(term_profile))
 
 
-def parametrize_env(callable, env_profiles=['plain', 'tmux']):
+def parametrize_env(callable,
+                    tmux_profiles=['plain', 'tmux'],
+                    term_profiles=['iterm2', 'kitty'],
+                    ):
     @pytest.mark.usefixtures('mock_env')
-    @pytest.mark.parametrize('env_profile', env_profiles)
+    @pytest.mark.parametrize('term_profile', term_profiles)
+    @pytest.mark.parametrize('tmux_profile', tmux_profiles)
     @functools.wraps(callable)
     def _wrapped(*args, **kwargs):
         return callable(*args, **kwargs)
@@ -84,6 +96,20 @@ class TestImgcat(object):
         if sha1:
             assert hashlib.sha1(buf).hexdigest().startswith(sha1), ("SHA1 mismatch")
 
+    def _validate_kitty(self, buf):
+        """Check if graphics sequence is correct."""
+        assert isinstance(buf, bytes)
+
+        # https://sw.kovidgoyal.net/kitty/graphics-protocol/#remote-client
+        # f=100 indicates PNG data
+        # m=0 means the last chunk, m=1 means other chunk will follow
+        assert re.match(b'^\x1b_Ga=T,f=100,m=(0|1);', buf)
+        assert buf.endswith(b'\033\\')
+
+        # TODO: test control sequences that come in multiple chunks.
+        # in such cases, only the last chunk have m=0 and the rest have m=1.
+
+
     @contextlib.contextmanager
     def capture_and_validate(self, **kwargs):
         with self._redirect_stdout(reprint=True) as f:
@@ -94,15 +120,17 @@ class TestImgcat(object):
         is_tmux = os.getenv('TMUX')
         if is_tmux:
             captured_bytes = self.tmux_unwrap_passthrough(captured_bytes)
-        self._validate_iterm2(captured_bytes, **kwargs)
+
+        if 'kitty' in os.getenv('TERM', ''):
+            self._validate_kitty(captured_bytes, **kwargs)
+        else:
+            self._validate_iterm2(captured_bytes, **kwargs)
 
     @staticmethod
     def tmux_unwrap_passthrough(b):
         '''Strip out all tmux pass-through sequence and other cursor-movement
         control sequences that come either in the beginning or in the end.'''
         assert isinstance(b, bytes)
-        #assert b.startswith(b'\033Ptmux;')
-        #assert b.endswith(b'\033\\')
         try:
             st = b.index(b'\033Ptmux;')
             ed = b.rindex(b'\033\\')
@@ -118,8 +146,6 @@ class TestImgcat(object):
 
     @parametrize_env
     def test_numpy(self):
-        # TODO: The test fails if tmux is enabled
-
         # uint8, grayscale
         a = np.ones([32, 32], dtype=np.uint8) * 128
         with self.capture_and_validate():
@@ -143,6 +169,7 @@ class TestImgcat(object):
             imgcat(a)
 
     @unittest.skipIf(sys.version_info < (3, 5), "Only in Python 3.5+")
+    @unittest.skipIf(sys.platform == 'darwin', "Lacking arm64 mac support")
     @parametrize_env
     def test_torch(self):
         import torch
@@ -162,6 +189,7 @@ class TestImgcat(object):
             imgcat(a)
 
     @unittest.skipIf(sys.version_info < (3, 5), "Only in Python 3.5+")
+    @unittest.skipIf(sys.platform == 'darwin', "Lacking arm64 mac support")
     @parametrize_env
     def test_tensorflow(self):
         import tensorflow.compat.v2 as tf
@@ -243,7 +271,8 @@ class TestImgcat(object):
         imgcat(gray, filename='foo.png')
         imgcat(gray, filename='unicode_한글.png')
 
-    @parametrize_env
+    # Only available in iTerm2 (not kitty)
+    @functools.partial(parametrize_env, term_profiles=['iterm2'])
     def test_args_another(self):
         b = io.BytesIO()
 
