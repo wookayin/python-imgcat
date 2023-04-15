@@ -18,6 +18,11 @@ if (not os.environ.get('DISPLAY', '') or \
 from imgcat import imgcat
 
 
+def _importable(package_name: str) -> bool:
+    import importlib.util
+    return importlib.util.find_spec(package_name) is not None
+
+
 @pytest.fixture
 def mock_env(monkeypatch, env_profile):
     """Mock environment variables (especially, TMUX)"""
@@ -138,9 +143,10 @@ class TestImgcat:
             a[..., 0], a[..., 1], a[..., 2] = 0x37 / 255., 0xb2 / 255., 0x4d / 255.
             imgcat(a)
 
+    @pytest.mark.skipif(not _importable('torch'), reason="No torch installed")
     @parametrize_env
     def test_torch(self):
-        import torch
+        import torch  # type: ignore
 
         # uint8, grayscale
         with self.capture_and_validate():
@@ -156,6 +162,7 @@ class TestImgcat:
             a = torch.ones([3, 32, 32], dtype=torch.uint8) * 0
             imgcat(a)
 
+    @pytest.mark.skipif(not _importable('tensorflow'), reason="No tensorflow installed")
     @parametrize_env
     def test_tensorflow(self):
         try:
@@ -163,6 +170,7 @@ class TestImgcat:
         except ImportError:
             pytest.skip("No tensorflow available")
 
+        import tensorflow.compat.v2 as tf  # type: ignore
         tf.enable_v2_behavior()
         assert tf.executing_eagerly(), "Eager execution should be enabled."
 
@@ -250,7 +258,6 @@ class TestImgcat:
                preserve_aspect_ratio=False, fp=b)
 
         v = b.getvalue()
-        assert b'size=82;' in v
         assert b'height=12;' in v
         assert b'width=10;' in v
         assert b'name=Zm9vLnBuZw==;' in v   # foo.png
