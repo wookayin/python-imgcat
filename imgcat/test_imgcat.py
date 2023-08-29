@@ -138,7 +138,6 @@ class TestImgcat:
             a[..., 0], a[..., 1], a[..., 2] = 0x37 / 255., 0xb2 / 255., 0x4d / 255.
             imgcat(a)
 
-    @pytest.mark.skipif(sys.version_info < (3, 5), reason="Only in Python 3.5+")
     @parametrize_env
     def test_torch(self):
         import torch
@@ -157,11 +156,10 @@ class TestImgcat:
             a = torch.ones([3, 32, 32], dtype=torch.uint8) * 0
             imgcat(a)
 
-    @pytest.mark.skipIf(sys.version_info < (3, 5), "Only in Python 3.5+")
     @parametrize_env
     def test_tensorflow(self):
         try:
-            import tensorflow.compat.v2 as tf
+            import tensorflow.compat.v2 as tf  # type: ignore # noqa
         except ImportError:
             pytest.skip("No tensorflow available")
 
