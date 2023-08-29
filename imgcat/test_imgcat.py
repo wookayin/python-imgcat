@@ -1,22 +1,21 @@
-import numpy as np
-import sys
-import os
-import io
-import hashlib
-import functools
+import codecs
 import contextlib
-
-import pytest
+import functools
+import hashlib
+import io
+import os
+import sys
 
 import matplotlib
-if not os.environ.get('DISPLAY', '') or not matplotlib.rcParams.get('backend', None):
+import numpy as np
+import pytest
+
+if (not os.environ.get('DISPLAY', '') or \
+    not matplotlib.rcParams.get('backend', None)
+    ):
     matplotlib.use('Agg')
 
 from imgcat import imgcat
-
-
-IS_PY_2 = (sys.version_info[0] <= 2)
-IS_PY_3 = (not IS_PY_2)
 
 
 @pytest.fixture
@@ -31,15 +30,17 @@ def mock_env(monkeypatch, env_profile):
 
 
 def parametrize_env(callable, env_profiles=['plain', 'tmux']):
+
     @pytest.mark.usefixtures('mock_env')
     @pytest.mark.parametrize('env_profile', env_profiles)
     @functools.wraps(callable)
     def _wrapped(*args, **kwargs):
         return callable(*args, **kwargs)
+
     return _wrapped
 
 
-class TestImgcat(object):
+class TestImgcat:
     '''Basic unit test. Supports TMUX and non-TMUX environment mocking.'''
 
     def setUp(self):
@@ -52,8 +53,6 @@ class TestImgcat(object):
 
     @contextlib.contextmanager
     def _redirect_stdout(self, reprint=True):
-        # TODO: python 2?
-        import io, codecs
         buf = io.BytesIO()
         out = codecs.getwriter('utf-8')(buf)
         setattr(out, 'buffer', buf)
@@ -67,7 +66,7 @@ class TestImgcat(object):
             del _original_stdout
 
         if reprint:
-            stdout_buf = sys.stdout.buffer if IS_PY_3 else sys.stdout
+            stdout_buf = sys.stdout.buffer
             stdout_buf.write(buf.getvalue())
             stdout_buf.flush()
 

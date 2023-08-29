@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 import sys
 import os
@@ -21,7 +20,7 @@ def read_version():
         version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
                                   f.read(), re.M)
     if version_match:
-        return version_match.group(1)
+        return str(version_match.group(1))
     raise RuntimeError("Unable to find __version__ string")
 
 
@@ -31,21 +30,11 @@ install_requires = [
 tests_requires = [
     'pytest<5.0',
     'numpy',
+    'torch',
+    'tensorflow>=2.0',
+    'matplotlib>=3.1',
+    'Pillow',
 ]
-if sys.version_info >= (3, 5):
-    tests_requires += ['torch']
-    tests_requires += ['tensorflow>=2.0']
-
-if sys.version_info >= (3, 6):
-    tests_requires += ['matplotlib>=3.1', 'Pillow']
-elif sys.version_info >= (3, 5):
-    tests_requires += ['matplotlib~=3.0.3', 'Pillow']
-else:  # <= Python 3.4
-    tests_requires += ['matplotlib<3.0', 'Pillow<6.0']
-
-# pytorch: python 2.7 require future
-if sys.version_info < (3, 0):
-    tests_requires += ['future']
 
 __version__ = read_version()
 
@@ -63,7 +52,7 @@ class DeployCommand(Command):
         print(s)
 
     def run(self):
-        import twine  # we require twine locally
+        import twine  # we require twine locally  # type: ignore  # noqa
 
         assert 'dev' not in __version__, \
             "Only non-devel versions are allowed. __version__ == {}".format(__version__)
@@ -110,10 +99,15 @@ setup(
         'Development Status :: 3 - Alpha',
         'License :: OSI Approved :: MIT License',
         'Operating System :: POSIX :: Linux',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
     ],
     packages=['imgcat'],
+    python_requires='>=3.6',
     install_requires=install_requires,
     extras_require={'test': tests_requires},
     setup_requires=['pytest-runner<5.0'],

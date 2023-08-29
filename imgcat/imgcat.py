@@ -2,28 +2,14 @@
 imgcat in Python.
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import base64
-import sys
+import contextlib
+import io
 import os
 import struct
-import io
 import subprocess
-import contextlib
-
-
-IS_PY_2 = (sys.version_info[0] <= 2)
-IS_PY_3 = (not IS_PY_2)
-
-if IS_PY_2:
-    FileNotFoundError = IOError  # pylint: disable=redefined-builtin
-    from urllib import urlopen   # type: ignore  # pylint: disable=no-name-in-module
-
-else: # PY3
-    from urllib.request import urlopen
+import sys
+from urllib.request import urlopen
 
 
 def get_image_shape(buf):
@@ -91,8 +77,7 @@ def to_content_buf(data):
     if isinstance(data, bytes):
         return data
 
-    elif isinstance(data, io.BufferedReader) or \
-            (IS_PY_2 and isinstance(data, file)):  # pylint: disable=undefined-variable
+    elif isinstance(data, io.BufferedReader):
         buf = data
         return buf.read()
 
@@ -179,8 +164,7 @@ def imgcat(data, filename=None,
         fp: The buffer to write to, defaults sys.stdout
     '''
     if fp is None:
-        fp = sys.stdout if IS_PY_2 \
-            else sys.stdout.buffer  # for stdout, use buffer interface (py3)
+        fp = sys.stdout.buffer
 
     buf = to_content_buf(data)
     if len(buf) == 0:
@@ -235,7 +219,7 @@ def main():
     # read from stdin?
     if not sys.stdin.isatty():
         if not args.input or list(args.input) == ['-']:
-            stdin = sys.stdin if IS_PY_2 else sys.stdin.buffer
+            stdin = sys.stdin.buffer
             imgcat(to_content_buf(stdin), **kwargs)
             return 0
 
