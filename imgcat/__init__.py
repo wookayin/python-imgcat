@@ -12,9 +12,9 @@ from .imgcat import (
 
 try:
     # support module://imgcat backend
-    from .mpl_backend import (
-        new_figure_manager, show
-    )
+    from .mpl_backend import new_figure_manager as new_figure_manager
+    from .mpl_backend import show as show
+    from .mpl_backend import FigureCanvas as FigureCanvas
 except ImportError:
     # matplotlib is not available, do nothing
     pass

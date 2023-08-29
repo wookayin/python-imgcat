@@ -32,7 +32,7 @@ tests_requires = [
     'numpy',
     'torch',
     'tensorflow>=2.0',
-    'matplotlib>=3.1',
+    'matplotlib>=3.6',
     'Pillow',
 ]
 
