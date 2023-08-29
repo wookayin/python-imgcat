@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-import unittest
 import numpy as np
 import sys
 import os
@@ -142,7 +139,7 @@ class TestImgcat(object):
             a[..., 0], a[..., 1], a[..., 2] = 0x37 / 255., 0xb2 / 255., 0x4d / 255.
             imgcat(a)
 
-    @unittest.skipIf(sys.version_info < (3, 5), "Only in Python 3.5+")
+    @pytest.mark.skipif(sys.version_info < (3, 5), reason="Only in Python 3.5+")
     @parametrize_env
     def test_torch(self):
         import torch
@@ -161,10 +158,14 @@ class TestImgcat(object):
             a = torch.ones([3, 32, 32], dtype=torch.uint8) * 0
             imgcat(a)
 
-    @unittest.skipIf(sys.version_info < (3, 5), "Only in Python 3.5+")
+    @pytest.mark.skipIf(sys.version_info < (3, 5), "Only in Python 3.5+")
     @parametrize_env
     def test_tensorflow(self):
-        import tensorflow.compat.v2 as tf
+        try:
+            import tensorflow.compat.v2 as tf
+        except ImportError:
+            pytest.skip("No tensorflow available")
+
         tf.enable_v2_behavior()
         assert tf.executing_eagerly(), "Eager execution should be enabled."
 
@@ -260,4 +261,4 @@ class TestImgcat(object):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    sys.exit(pytest.main(["-s", "-v"] + sys.argv))
