@@ -48,20 +48,23 @@ def get_image_shape(buf: bytes) -> Tuple[Optional[int], Optional[int]]:
         b.write(buf)
 
         try:
-            from PIL import Image
-            im = Image.open(b)
-            return im.width, im.height
-        except (IOError, OSError) as ex:
-            # PIL.Image.open throws an error -- probably invalid byte input are given
-            sys.stderr.write("Warning: PIL cannot identify image; this may not be an image file" + "\n")
+            import PIL   # noqa
         except ImportError:
             # PIL not available
             sys.stderr.write("Warning: cannot determine the image size; please install Pillow" + "\n")
             sys.stderr.flush()
+            return None, None
+
+        from PIL import Image, UnidentifiedImageError
+        try:
+            im = Image.open(b)
+            return im.width, im.height
+        except UnidentifiedImageError:
+            # PIL.Image.open throws an error -- probably invalid byte input are given
+            sys.stderr.write("Warning: PIL cannot identify image size; this may not be an image file" + "\n")
+            return None, None
         finally:
             b.close()
-
-        return None, None
 
 
 def _isinstance(obj, module, clsname):
