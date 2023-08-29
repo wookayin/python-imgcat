@@ -2,7 +2,8 @@
 imgcat in Python.
 """
 
-import base64
+from typing import Any, Optional, TYPE_CHECKING, Tuple
+
 import contextlib
 import io
 import os
@@ -12,7 +13,13 @@ import sys
 from urllib.request import urlopen
 
 
-def get_image_shape(buf):
+if TYPE_CHECKING:
+    import matplotlib.figure  # type: ignore
+    import torch  # type: ignore
+    from PIL import Image  # type: ignore
+
+
+def get_image_shape(buf: bytes) -> Tuple[Optional[int], Optional[int]]:
     '''
     Extracts image shape as 2-tuple (width, height) from the content buffer.
 
@@ -71,7 +78,7 @@ def _isinstance(obj, module, clsname):
         return False
 
 
-def to_content_buf(data):
+def to_content_buf(data: Any) -> bytes:
     # TODO: handle 'stream-like' data efficiently, rather than storing into RAM
 
     if isinstance(data, bytes):
@@ -86,11 +93,13 @@ def to_content_buf(data):
 
     elif _isinstance(data, 'numpy', 'ndarray'):
         # numpy ndarray: convert to png
-        im = data
+        import numpy
+        im: 'numpy.ndarray' = data
         if len(im.shape) == 2:
             mode = 'L'     # 8-bit pixels, grayscale
             im = im.astype(sys.modules['numpy'].uint8)
         elif len(im.shape) == 3 and im.shape[2] in (3, 4):
+            # (H, W, C) format
             mode = None    # RGB/RGBA
             if im.dtype.kind == 'f':
                 im = (im * 255).astype('uint8')
@@ -111,16 +120,16 @@ def to_content_buf(data):
             return buf.getvalue()
 
     elif _isinstance(data, 'torch', 'Tensor'):
-        im = data
-        return to_content_buf(im.numpy())
+        torch_img: 'torch.Tensor' = data
+        return to_content_buf(torch_img.numpy())
 
     elif _isinstance(data, 'tensorflow.python.framework.ops', 'EagerTensor'):
-        im = data
-        return to_content_buf(im.numpy())
+        tf_img: Any = data
+        return to_content_buf(tf_img.numpy())
 
     elif _isinstance(data, 'PIL.Image', 'Image'):
         # PIL/Pillow images
-        img = data
+        img: 'Image.Image' = data
 
         with io.BytesIO() as buf:
             img.save(buf, format='png')
@@ -128,7 +137,7 @@ def to_content_buf(data):
 
     elif _isinstance(data, 'matplotlib.figure', 'Figure'):
         # matplotlib figures
-        fig = data
+        fig: 'matplotlib.figure.Figure' = data
         if fig.canvas is None:
             from matplotlib.backends.backend_agg import FigureCanvasAgg
             FigureCanvasAgg(fig)
@@ -147,7 +156,7 @@ def get_tty_size():
     return int(rows), int(columns)
 
 
-def imgcat(data, filename=None,
+def imgcat(data: Any, filename=None,
            width=None, height=None, preserve_aspect_ratio=True,
            pixels_per_line=24,
            fp=None):
@@ -213,8 +222,10 @@ def main():
     args = parser.parse_args()
 
     kwargs = dict()
-    if args.height: kwargs['height'] = args.height
-    if args.width: kwargs['width'] = args.width
+    if args.height:
+        kwargs['height'] = args.height
+    if args.width:
+        kwargs['width'] = args.width
 
     # read from stdin?
     if not sys.stdin.isatty():

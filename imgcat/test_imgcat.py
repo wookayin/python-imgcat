@@ -93,7 +93,7 @@ class TestImgcat:
         self._validate_iterm2(captured_bytes, **kwargs)
 
     @staticmethod
-    def tmux_unwrap_passthrough(b):
+    def tmux_unwrap_passthrough(b: bytes) -> bytes:
         '''Strip out all tmux pass-through sequence and other cursor-movement
         control sequences that come either in the beginning or in the end.'''
         assert isinstance(b, bytes)
@@ -103,7 +103,7 @@ class TestImgcat:
             st = b.index(b'\033Ptmux;')
             ed = b.rindex(b'\033\\')
         except ValueError:
-            assert '\033Ptmux;' in b, "Does not contain \\033Ptmux; ..."
+            assert False, "Does not contain \\033Ptmux; ..."
 
         b = b[st + 7 : ed]
         b = b.replace(b'\033\033', b'\033')
@@ -124,7 +124,7 @@ class TestImgcat:
         # uint8, color image
         with self.capture_and_validate():
             a = np.ones([32, 32, 3], dtype=np.uint8) * 0
-            a[:, :, 0] = 255    # (255, 0, 0): red
+            a[:, :, 0] = 255  # (255, 0, 0): red
             imgcat(a)
 
         # np.float32 [0..1] (#7f7f7f)
