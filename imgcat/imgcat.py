@@ -98,11 +98,23 @@ def to_content_buf(data: Any) -> bytes:
         if len(im.shape) == 2:
             mode = 'L'     # 8-bit pixels, grayscale
             im = im.astype(sys.modules['numpy'].uint8)
-        elif len(im.shape) == 3 and im.shape[2] in (3, 4):
+        elif len(im.shape) == 3 and im.shape[2] in (1, 3, 4):
             # (H, W, C) format
             mode = None    # RGB/RGBA
             if im.dtype.kind == 'f':
                 im = (im * 255).astype('uint8')
+            if im.shape[2] == 1:
+                mode = 'L'  # 8-bit grayscale
+                im = numpy.squeeze(im, axis=2)
+        elif len(im.shape) == 3 and im.shape[0] in (1, 3, 4):
+            # (C, H, W) format
+            mode = None    # RGB/RGBA
+            im = numpy.rollaxis(im, 0, 3)  # CHW -> HWC
+            if im.dtype.kind == 'f':
+                im = (im * 255).astype('uint8')
+            if im.shape[2] == 1:
+                mode = 'L'  # 8-bit grayscale
+                im = numpy.squeeze(im, axis=2)
         else:
             raise ValueError("Expected a 3D ndarray (RGB/RGBA image) or 2D (grayscale image), "
                              "but given shape: {}".format(im.shape))
