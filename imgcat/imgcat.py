@@ -134,6 +134,11 @@ def to_content_buf(data: Any) -> bytes:
             Image.fromarray(im, mode=mode).save(buf, format='png')
             return buf.getvalue()
 
+    elif hasattr(data, '__array__'):
+        # e.g., JAX tensors
+        arr_img = data.__array__()
+        return to_content_buf(arr_img)
+
     elif _isinstance(data, 'torch', 'Tensor'):
         torch_img: 'torch.Tensor' = data
         return to_content_buf(torch_img.numpy())
