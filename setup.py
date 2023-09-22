@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 
-import sys
 import os
 import re
 
-from setuptools import setup, Command
+from setuptools import setup
 
 
 __PATH__ = os.path.abspath(os.path.dirname(__file__))
@@ -37,50 +36,6 @@ tests_requires = [
 ]
 
 __version__ = read_version()
-
-
-# brought from https://github.com/kennethreitz/setup.py
-class DeployCommand(Command):
-    description = 'Build and deploy the package to PyPI.'
-    user_options = []
-
-    def initialize_options(self): pass
-    def finalize_options(self): pass
-
-    @staticmethod
-    def status(s):
-        print(s)
-
-    def run(self):
-        import twine  # we require twine locally  # type: ignore  # noqa
-
-        assert 'dev' not in __version__, \
-            "Only non-devel versions are allowed. __version__ == {}".format(__version__)
-
-        with os.popen("git status --short") as fp:
-            git_status = fp.read().strip()
-            if git_status:
-                print("Error: git repository is not clean.\n")
-                os.system("git status --short")
-                sys.exit(1)
-
-        try:
-            from shutil import rmtree
-            self.status('Removing previous builds ...')
-            rmtree(os.path.join(__PATH__, 'dist'))
-        except OSError:
-            pass
-
-        self.status('Building Source and Wheel (universal) distribution ...')
-        os.system('{0} setup.py sdist'.format(sys.executable))
-
-        self.status('Uploading the package to PyPI via Twine ...')
-        os.system('twine upload dist/*')
-
-        self.status('Creating git tags ...')
-        os.system('git tag v{0}'.format(__version__))
-        os.system('git tag --list')
-        sys.exit()
 
 
 setup(
@@ -118,6 +73,5 @@ setup(
     include_package_data=True,
     zip_safe=False,
     cmdclass={
-        'deploy': DeployCommand,
-    }
+    },
 )
