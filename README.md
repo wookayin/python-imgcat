@@ -2,14 +2,13 @@
 ========
 
 [![pypi](https://img.shields.io/pypi/v/imgcat.svg?maxAge=86400)](https://pypi.python.org/pypi/imgcat)
-[![Build Status](https://travis-ci.org/wookayin/python-imgcat.svg?branch=master)](https://travis-ci.org/wookayin/python-imgcat)
 [![license](https://img.shields.io/github/license/wookayin/python-imgcat.svg?maxAge=86400)](LICENSE)
 
 The imgcat CLI, written in Python (and Python API, too).
 
 <img src="https://raw.githubusercontent.com/wookayin/python-imgcat/master/screenshot.png" width="640" height="520" />
 
-It works with [iTerm2](https://www.iterm2.com/documentation-images.html), and [even inside tmux][iterm_g3898] (for tmux, see [Notes](#notes) below).
+It works with [iTerm2](https://www.iterm2.com/documentation-images.html) and [WezTerm](https://wezfurlong.org/wezterm/imgcat.html), and [even inside tmux][iterm_g3898] (for tmux, see [Notes](#notes) below).
 
 
 Installation and Usage
@@ -79,7 +78,7 @@ Notes
 
 * [tmux 2.5+ cannot display big images][tmux_gh1502]. Use tmux <= 2.4 or run outside tmux.
 * In [tmux 3.3a or higher][tmux_33a], it is required to have `set-option -g allow-passthrough on` in `~/.tmux.conf`.
-* TODO: General platform/emulator support (introduce multiple backends)
+* TODO: General platform/emulator support (introduce multiple backends) including Sixel
 
 
 Related Projects
