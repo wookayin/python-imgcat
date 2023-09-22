@@ -5,10 +5,8 @@ The imgcat module
 __version__ = '0.6.0.dev0'
 
 
-from .imgcat import (
-    imgcat,
-    main
-)
+from .imgcat import imgcat as imgcat
+from .imgcat import main as main
 
 try:
     # support module://imgcat backend
