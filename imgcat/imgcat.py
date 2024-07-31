@@ -237,6 +237,8 @@ def main():
                         help='The number of rows (in terminal) for displaying images.')
     parser.add_argument('--width', default=None, type=int,
                         help='The number of columns (in terminal) for displaying images.')
+    parser.add_argument('--no-preserve-aspect', action='store_true',
+                        help='Allow reshaping of image.')
     parser.add_argument('-v', '--version', action='version',
                         version='python-imgcat %s' % __version__)
     args = parser.parse_args()
@@ -246,6 +248,7 @@ def main():
         kwargs['height'] = args.height
     if args.width:
         kwargs['width'] = args.width
+    kwargs['preserve_aspect_ratio'] = not args.no_preserve_aspect
 
     # read from stdin?
     if not sys.stdin.isatty():
