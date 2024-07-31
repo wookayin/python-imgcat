@@ -20,6 +20,7 @@ Sizes can be specified as (N is any integer):
     * Npx:      Pixels.
     * N%:       Percentage of session's size.
     * auto:     Use the original dimension, but allow scaling above this (terminal dependent?).
+    * original: Use the original dimension.
     * default:  Let the terminal decide.
     * v0.5:     Height only; use smaller of terminal height or original pixels/24 rows.
 
@@ -214,23 +215,28 @@ def imgcat(data: Any, filename=None,
     if len(buf) == 0:
         raise ValueError("Empty buffer")
 
-    if height == 'v0.5':
+    if height == 'v0.5' or 'original' in (height, width):
         im_width, im_height = get_image_shape(buf)
-        if im_height:
-            assert pixels_per_line > 0
-            height = (im_height + (pixels_per_line - 1)) // pixels_per_line
+        if height == 'v0.5':
+            if im_height:
+                assert pixels_per_line > 0
+                height = (im_height + (pixels_per_line - 1)) // pixels_per_line
 
-            # automatically limit height to the current tty,
-            # otherwise the image will be just erased
-            try:
-                tty_height, _ = get_tty_size()
-                height = max(1, min(height, tty_height - 9))
-            except OSError:
-                # may not be a terminal
-                pass
-        else:
-            # image height unavailable, fallback?
-            height = 10
+                # automatically limit height to the current tty,
+                # otherwise the image will be just erased
+                try:
+                    tty_height, _ = get_tty_size()
+                    height = max(1, min(height, tty_height - 9))
+                except OSError:
+                    # may not be a terminal
+                    pass
+            else:
+                # image height unavailable, fallback?
+                height = 10
+        elif height == 'original':
+            height = f'{im_height}px' if im_height else 'auto'
+        if width == 'original':
+            width = f'{im_width}px' if im_width else 'auto'
 
     if width == 'v0.5':
         raise ValueError("There is no legacy fallback for width")
@@ -242,7 +248,7 @@ def imgcat(data: Any, filename=None,
 
 
 def parse_size(s):
-    if s in ("v0.5", "auto"):
+    if s in ("v0.5", "auto", "original"):
         return s
     if s == 'default':
         return None
