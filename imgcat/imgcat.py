@@ -99,7 +99,8 @@ def to_content_buf(data: Any) -> bytes:
         import numpy
         im: 'numpy.ndarray' = data
         if im.dtype.kind == 'f':
-            im = (im * 255).astype('uint8')
+            # https://stackoverflow.com/a/66862750
+            im = (im * 256).clip(0, 255).astype('uint8')
         if len(im.shape) == 2:
             mode = 'L'     # 8-bit pixels, grayscale
         elif len(im.shape) == 3 and im.shape[2] in (1, 3, 4):
