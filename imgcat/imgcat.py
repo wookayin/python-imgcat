@@ -26,7 +26,7 @@ Sizes can be specified as (N is any integer):
 
 Where aspect is preserved, the smaller dimension will be used.
 The scaling is performed by your terminal, except in v0.5 mode. On Konsole, the image will be scaled to the largest size which fits the constraints, except that 'auto' is ignored.
-The defaults are --width=default --height=v0.5
+The defaults are --width=100% --height=original
 """
 
 if TYPE_CHECKING:
@@ -270,9 +270,9 @@ def main():
     )
     parser.add_argument('input', nargs='*', type=str,
                         help='Path to the images.')
-    parser.add_argument('--height', default='v0.5', type=parse_size,
+    parser.add_argument('--height', default='original', type=parse_size,
                         help='Height of image.')
-    parser.add_argument('--width', default=None, type=parse_size,
+    parser.add_argument('--width', default='100%', type=parse_size,
                         help='Width of image.')
     parser.add_argument('--no-preserve-aspect', action='store_true',
                         help='Allow reshaping of image.')
