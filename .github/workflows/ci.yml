@@ -28,8 +28,9 @@ jobs:
             python-version: "3.11"
           - os: ubuntu-latest
             python-version: "3.12"
-          - os: ubuntu-latest
-            python-version: "3.13"
+          # - os: ubuntu-latest
+          #   python-version: "3.13"
+          # python3.13: disabled until tensorflow supports
 
     steps:
       - uses: actions/checkout@v2
