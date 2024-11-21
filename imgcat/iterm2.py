@@ -37,7 +37,8 @@ def _write_image(buf, fp,
         else:
             filename_bytes = filename.encode()
         fp.write(b';name=' + base64.b64encode(filename_bytes))
-    fp.write(b';height=' + str(height).encode())
+    if height:
+        fp.write(b';height=' + str(height).encode())
     if width:
         fp.write(b';width=' + str(width).encode())
     if not preserve_aspect_ratio:
