@@ -66,8 +66,6 @@ setup(
     python_requires='>=3.6',
     install_requires=install_requires,
     extras_require={'test': tests_requires},
-    setup_requires=['pytest-runner<5.0'],
-    tests_require=tests_requires,
     entry_points={
         'console_scripts': ['imgcat=imgcat:main'],
     },
