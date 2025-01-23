@@ -12,6 +12,22 @@ import subprocess
 import sys
 from urllib.request import urlopen
 
+HELP_EPILOG = """
+SIZES
+
+Sizes can be specified as (N is any integer):
+    * N:        Number of character cells.
+    * Npx:      Pixels.
+    * N%:       Percentage of session's size.
+    * auto:     Use the original dimension, but allow scaling above this (terminal dependent?).
+    * original: Use the original dimension.
+    * default:  Let the terminal decide.
+    * v0.5:     Height only; use smaller of terminal height or original pixels/24 rows.
+
+Where aspect is preserved, the smaller dimension will be used.
+The scaling is performed by your terminal, except in v0.5 mode. On Konsole, the image will be scaled to the largest size which fits the constraints, except that 'auto' is ignored.
+The defaults are --width=100% --height=original
+"""
 
 if TYPE_CHECKING:
     import matplotlib.figure  # type: ignore
@@ -199,29 +215,46 @@ def imgcat(data: Any, filename=None,
     if len(buf) == 0:
         raise ValueError("Empty buffer")
 
-    if height is None:
+    if height == 'v0.5' or 'original' in (height, width):
         im_width, im_height = get_image_shape(buf)
-        if im_height:
-            assert pixels_per_line > 0
-            height = (im_height + (pixels_per_line - 1)) // pixels_per_line
+        if height == 'v0.5':
+            if im_height:
+                assert pixels_per_line > 0
+                height = (im_height + (pixels_per_line - 1)) // pixels_per_line
 
-            # automatically limit height to the current tty,
-            # otherwise the image will be just erased
-            try:
-                tty_height, _ = get_tty_size()
-                height = max(1, min(height, tty_height - 9))
-            except OSError:
-                # may not be a terminal
-                pass
-        else:
-            # image height unavailable, fallback?
-            height = 10
+                # automatically limit height to the current tty,
+                # otherwise the image will be just erased
+                try:
+                    tty_height, _ = get_tty_size()
+                    height = max(1, min(height, tty_height - 9))
+                except OSError:
+                    # may not be a terminal
+                    pass
+            else:
+                # image height unavailable, fallback?
+                height = 10
+        elif height == 'original':
+            height = f'{im_height}px' if im_height else 'auto'
+        if width == 'original':
+            width = f'{im_width}px' if im_width else 'auto'
+
+    if width == 'v0.5':
+        raise ValueError("There is no legacy fallback for width")
 
     from . import iterm2
     iterm2._write_image(buf, fp,
                         filename=filename, width=width, height=height,
                         preserve_aspect_ratio=preserve_aspect_ratio)
 
+
+def parse_size(s):
+    if s in ("v0.5", "auto", "original"):
+        return s
+    if s == 'default':
+        return None
+    for suffix in ("%", "px", ""):
+        if s.endswith(suffix):
+            return f"{int(s[:-len(suffix)])}{suffix}"
 
 def main():
     import argparse
@@ -230,13 +263,19 @@ def main():
     except ImportError:
         __version__ = 'N/A'
 
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        epilog=HELP_EPILOG,
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
     parser.add_argument('input', nargs='*', type=str,
                         help='Path to the images.')
-    parser.add_argument('--height', default=None, type=int,
-                        help='The number of rows (in terminal) for displaying images.')
-    parser.add_argument('--width', default=None, type=int,
-                        help='The number of columns (in terminal) for displaying images.')
+    parser.add_argument('--height', default='original', type=parse_size,
+                        help='Height of image.')
+    parser.add_argument('--width', default='100%', type=parse_size,
+                        help='Width of image.')
+    parser.add_argument('--no-preserve-aspect', action='store_true',
+                        help='Allow reshaping of image.')
     parser.add_argument('-v', '--version', action='version',
                         version='python-imgcat %s' % __version__)
     args = parser.parse_args()
@@ -246,6 +285,7 @@ def main():
         kwargs['height'] = args.height
     if args.width:
         kwargs['width'] = args.width
+    kwargs['preserve_aspect_ratio'] = not args.no_preserve_aspect
 
     # read from stdin?
     if not sys.stdin.isatty():
