@@ -28,9 +28,9 @@ install_requires = [
 
 tests_requires = [
     'pytest',
-    'numpy',
-    'torch',
-    'tensorflow>=2.0',
+    'numpy>=1.21,<2.0',
+    'torch>=2.0,<3.0; python_version >= "3.8"',
+    'tensorflow>=2.0,<3.0; python_version >= "3.8"',
     'matplotlib>=3.3',
     'Pillow',
 ]
