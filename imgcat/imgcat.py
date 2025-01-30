@@ -6,10 +6,11 @@ from typing import Any, Optional, TYPE_CHECKING, Tuple
 
 import contextlib
 import io
+import sys
+import argparse
 import os
 import struct
 import subprocess
-import sys
 from urllib.request import urlopen
 
 
@@ -176,6 +177,21 @@ def get_tty_size():
     return int(rows), int(columns)
 
 
+def get_backend():
+    '''Determine a proper backend from environment variables.'''
+
+    term = os.getenv('TERM_PROGRAM', None)
+    if term == 'tmux' or term is None:
+        term = os.getenv('TERM', '')
+
+    if term.__contains__('kitty') or term.__contains__('ghostty'):
+        from . import kitty
+        return kitty
+    else:
+        from . import iterm2
+        return iterm2
+
+
 def imgcat(data: Any, filename=None,
            width=None, height=None, preserve_aspect_ratio=True,
            pixels_per_line=24,
@@ -217,14 +233,32 @@ def imgcat(data: Any, filename=None,
             # image height unavailable, fallback?
             height = 10
 
-    from . import iterm2
-    iterm2._write_image(buf, fp,
-                        filename=filename, width=width, height=height,
-                        preserve_aspect_ratio=preserve_aspect_ratio)
+    backend = get_backend()
+    if 'kitty' in backend.__name__:
+        # TODO handle other parameters
+        backend._write_image(buf, fp, height=height)
+    else:
+        backend._write_image(buf, fp,
+                             filename=filename, width=width, height=height,
+                             preserve_aspect_ratio=preserve_aspect_ratio)
+
+
+def clear():
+    """Clear any remaining graphics if possible."""
+    pass
+
+
+class ClearAction(argparse.Action):
+    def __init__(self, option_strings, dest, default=False, **kwargs):
+        super(ClearAction, self).__init__(
+            option_strings, nargs=0, dest=dest, default=False, **kwargs)
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        setattr(namespace, self.dest, True)
+        get_backend().clear()
 
 
 def main():
-    import argparse
     try:
         from imgcat import __version__
     except ImportError:
@@ -232,13 +266,15 @@ def main():
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('input', nargs='*', type=str,
-                        help='Path to the images.')
+                        help='Path to the image files.')
     parser.add_argument('--height', default=None, type=int,
                         help='The number of rows (in terminal) for displaying images.')
     parser.add_argument('--width', default=None, type=int,
                         help='The number of columns (in terminal) for displaying images.')
     parser.add_argument('-v', '--version', action='version',
                         version='python-imgcat %s' % __version__)
+    parser.add_argument('-c', '--clear', action=ClearAction,
+                        help='Clear all existing graphics (only effective in kitty)')
     args = parser.parse_args()
 
     kwargs = dict()
@@ -271,7 +307,7 @@ def main():
 
         imgcat(buf, filename=os.path.basename(fname), **kwargs)
 
-    if not args.input:
+    if not args.clear and not args.input:
         parser.print_help()
 
     return 0
