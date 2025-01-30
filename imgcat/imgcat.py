@@ -179,7 +179,12 @@ def get_tty_size():
 
 def get_backend():
     '''Determine a proper backend from environment variables.'''
-    if os.getenv('TERM', '').__contains__('kitty'):
+
+    term = os.getenv('TERM_PROGRAM', None)
+    if term == 'tmux' or term is None:
+        term = os.getenv('TERM', '')
+
+    if term.__contains__('kitty') or term.__contains__('ghostty'):
         from . import kitty
         return kitty
     else:
