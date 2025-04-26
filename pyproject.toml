@@ -24,6 +24,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 
 [project.urls]
@@ -38,9 +39,10 @@ version = { attr = "imgcat.__version__" }
 [project.optional-dependencies]
 test = [
     "pytest",
-    "numpy>=1.21,<2.0",
+    "numpy>=1.21,<2.0; python_version < '3.12'",
+    "numpy>=2.0; python_version >= '3.12'",
     "torch>=2.0,<3.0; python_version >= '3.8'",
-    "tensorflow>=2.0,<3.0; python_version >= '3.8'",
+    "tensorflow>=2.0,<3.0; python_version >= '3.8' and python_version < '3.13'",
     "matplotlib>=3.3",
     "Pillow",
 ]
