@@ -64,3 +64,15 @@ ignore = [
     "E702",    # multiple-statements-on-one-line-semicolon
     "E731",    # lambda-assignment
 ]
+
+
+# torch (for CI): use CPU-only whl, no need to install CUDA stuffs
+[tool.uv.sources]
+torch = [
+    { index = "pytorch-cpu" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
