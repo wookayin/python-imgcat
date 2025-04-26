@@ -1,0 +1,66 @@
+[build-system]
+requires = ["setuptools >= 64.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "imgcat"
+dynamic = ["version"]
+description = "imgcat as Python API and CLI"
+readme = "README.md"
+requires-python = ">=3.6"
+license = {text = "MIT"}
+authors = [
+    { name = "Jongwook Choi", email = "wookayin@gmail.com" },
+]
+keywords = ["imgcat", "iterm2", "matplotlib"]
+classifiers = [
+    "Development Status :: 3 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+[project.urls]
+Homepage = "https://github.com/wookayin/python-imgcat"
+
+[project.scripts]
+imgcat = "imgcat:main"
+
+[tool.setuptools.dynamic]
+version = { attr = "imgcat.__version__" }
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "numpy>=1.21,<2.0",
+    "torch>=2.0,<3.0; python_version >= '3.8'",
+    "tensorflow>=2.0,<3.0; python_version >= '3.8'",
+    "matplotlib>=3.3",
+    "Pillow",
+]
+
+# https://docs.astral.sh/ruff/configuration/
+[tool.ruff]
+line-length = 79
+indent-width = 4
+target-version = "py310"
+
+# https://docs.astral.sh/ruff/rules/
+[tool.ruff.lint]
+preview = true  # use experimental features
+extend-select = [
+    # In addition to the defaults: ["E4", "E7", "E9", "F"]
+    "PLE",     # pylint errors
+    "PLW",     # pylint warnings
+    "RUF",     # ruff-specific
+]
+ignore = [
+    "E702",    # multiple-statements-on-one-line-semicolon
+    "E731",    # lambda-assignment
+]
